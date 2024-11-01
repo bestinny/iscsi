@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# WWID를 가져오는 함수
+get_wwid() {
+    # 예시: lsblk 명령어를 사용하여 특정 장치의 WWID를 가져옴
+    # 필요한 경우 장치 이름을 적절하게 수정하세요 (예: /dev/sda)
+    local device="/dev/sda"  # 수정할 장치 이름
+    local wwid=$(lsblk -o +UUID | grep "$device" | awk '{print $NF}')
+    
+    # WWID가 유효한지 확인
+    if [[ -n "$wwid" ]]; then
+        echo "$wwid"
+    else
+        echo "WWID not found for device $device" >&2
+        exit 1
+    fi
+}
+
+# WWID 가져오기
+WWID=$(get_wwid)
+
+# /etc/multipath.conf 파일에 추가할 내용
+CONFIG_CONTENT=$(cat << EOF
+
+multipaths {
+    multipath {
+        wwid    $WWID
+        alias   mpath0
+    }
+}
+EOF
+)
+
+# /etc/multipath.conf 파일에 설정 추가
+echo "Adding multipath configuration to /etc/multipath.conf..."
+echo "$CONFIG_CONTENT" | sudo tee -a /etc/multipath.conf > /dev/null
+
+echo "Configuration added successfully with WWID: $WWID"
