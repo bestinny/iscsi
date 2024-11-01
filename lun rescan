@@ -1,1 +1,5 @@
+# HBA(iSCSI) 세션 리스캔
+iscsiadm -m session --rescan
+
+# HBA(iSCSI) LUN 리스캔
 for host in /sys/class/scsi_host/host*; do echo "- - -" > "$host/scan"; done
