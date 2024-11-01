@@ -1,0 +1,18 @@
+#리눅스 iSCSI 연결 명령어 ip-address : 스토리지 IP, iqn.info : 스토리지 iqn정보
+yum install iscsi-initiator-utils
+cat /etc/iscsi/initiatorname.iscsi
+iscsiadm -m discovery -t st -p ip-address
+iscsiadm -m node -l -T iqn.info -p ip-address 
+
+
+
+
+
+#스토리지 용량 증설 후 디스크 리스캔
+for host in /sys/class/scsi_host/host*; do echo "- - -" > $host/scan; done
+
+#ext4 증설명령어
+resize2fs /dev/mapper/disk1 
+// 해당 경로는 디바이스패스 이므로 환경에 따른 변경이 있음.
+
+#xfs 증설명령어
